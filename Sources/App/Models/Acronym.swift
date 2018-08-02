@@ -27,3 +27,6 @@ extension Acronym:Model {
 //Make the model conform to Migration
 extension Acronym:Migration {}
 
+
+//Content is a wrapper around Codable, which allows you to convert models and other data between various formats
+extension Acronym: Content {}
