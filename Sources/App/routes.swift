@@ -1,4 +1,5 @@
 import Vapor
+import Fluent
 
 /// Register your application's routes here.
 public func routes(_ router: Router) throws {
@@ -6,7 +7,8 @@ public func routes(_ router: Router) throws {
     router.get("hello") { req in
         return "Hello, world!"
     }
-
+    
+    //MARK: CRUD
     //Register a new route at /api/acronyms that accepts a POST request and returns Future<Acronym>. It returns the acronym once it’s saved
     router.post("api","acronyms") { (request) -> Future<Acronym> in
         
@@ -57,4 +59,63 @@ public func routes(_ router: Router) throws {
         
         return eventLoopFutureHTTPStatus
     }
+    
+    //MARK: Fluent Operations
+    
+    //Search a Arconym
+
+    //Search just the by the short term.
+    router.get("api","acronyms","searchShort") { (request) -> Future<[Acronym]> in
+        //Retrieve the search term from the URL query string. You can do this with any Codable object by calling req.query.decode(_:). If this fails, throw a 400 Bad Request error
+        guard let searchTerm = request.query[String.self, at: "term"] else {
+            throw Abort(.badRequest)
+        }
+        
+        
+
+        //Use filter(_:) to find all acronyms whose short property matches the searchTerm. Because this uses key paths, the compiler can enforce type-safety on the properties and filter terms. This prevents run-time issues caused by specifying an invalid column name or invalid type to filter on.
+        return Acronym.query(on: request).filter(\.short == searchTerm).all()
+    }
+    
+    //Search in both terms
+    router.get("api","acronyms","search") { (request) -> Future<[Acronym]> in
+        //Retrieve the search term from the URL query string. You can do this with any Codable object by calling req.query.decode(_:). If this fails, throw a 400 Bad Request error
+        guard let searchTerm = request.query[String.self, at: "term"] else {
+            throw Abort(.badRequest)
+        }
+        
+        //Use filter(_:) to find all acronyms whose short property matches the searchTerm. Because this uses key paths, the compiler can enforce type-safety on the properties and filter terms. This prevents run-time issues caused by specifying an invalid column name or invalid type to filter on.
+        return Acronym.query(on: request).group(.or, closure: { (or) in
+            
+            //Add a filter to the group to filter for acronyms whose short property matches the search term.
+            or.filter(\.short == searchTerm)
+            
+            //Add a filter to the group to filter for acronyms whose long property matches the search term.
+            or.filter(\.long == searchTerm)
+        
+        //Return all the results.
+        }).all()
+    }
+    
+    //Get the first on the query
+    router.get("api","acronyms","first") { (request) -> Future<Acronym> in
+        //Perform a query to get the first acronym. Use the map(to:) function to unwrap the result of the query.
+        return Acronym.query(on: request).first().map(to: Acronym.self, { (acronym) -> Acronym in
+            
+            //Ensure an acronym exists. frist() retuens an optional as there may be no acronyms in the database. Throw a 404 not found error if no acronym is returned.
+            guard let acronym = acronym else {
+                throw Abort(.notFound)
+            }
+            
+            return acronym
+        })
+    }
+    
+    //Sorted the results
+    router.get("api","acronyms","sorted") { (request) -> Future<[Acronym]> in
+        
+        //Createe a query for acronym and use sort(_:_:) to perfom the sort. This function takes the field to sort on and the direction to sort in. Finally use all() to return all the results of the query
+        return Acronym.query(on: request).sort(\.short, .ascending).all()
+    }
+    
 }
