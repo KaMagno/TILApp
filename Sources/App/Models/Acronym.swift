@@ -13,10 +13,13 @@ final class Acronym:Codable {
 }
 
 //Make Acronym conform to Fluent’s Model.
-extension Acronym:PostgreSQLModel {}
+extension Acronym: PostgreSQLModel {}
 
 //Make the model conform to Migration
-extension Acronym:Migration {}
+extension Acronym: Migration {}
 
 //Content is a wrapper around Codable, which allows you to convert models and other data between various formats
 extension Acronym: Content {}
+
+//Make Acronym conform to Parameter protocol. So it can be used as a Prameter
+extension Acronym: Parameter {}
