@@ -1,5 +1,5 @@
 import Vapor
-import FluentSQLite
+import FluentPostgreSQL
 
 final class Acronym:Codable {
     var id:Int?
@@ -13,20 +13,10 @@ final class Acronym:Codable {
 }
 
 //Make Acronym conform to Fluent’s Model.
-extension Acronym:Model {
-    //Tell Fluent what database to use for this model. The template is already configured to use SQLite.
-    typealias Database = SQLiteDatabase
-    
-    //Tell Fluent what type the ID is
-    typealias ID = Int
-    
-    //Tell Fluent the key path of the model’s ID property.
-    public static var idKey:IDKey = \Acronym.id
-}
+extension Acronym:PostgreSQLModel {}
 
 //Make the model conform to Migration
 extension Acronym:Migration {}
-
 
 //Content is a wrapper around Codable, which allows you to convert models and other data between various formats
 extension Acronym: Content {}
