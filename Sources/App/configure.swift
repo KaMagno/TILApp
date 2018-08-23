@@ -28,6 +28,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var migrations = MigrationConfig()
     //Add a model to the database
     migrations.add(model: Acronym.self, database: .psql)
+    migrations.add(model: User.self, database: .psql)
     services.register(migrations)
 
 }

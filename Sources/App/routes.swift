@@ -8,9 +8,15 @@ public func routes(_ router: Router) throws {
         return "Hello, world!"
     }
     
+    
+    // MARK: Acronym
     //Crate an Acronym Controller
     let acronymsController = AcronymsController()
     
     //Register the new type with the router to ensure the contoller's route get registered
     try router.register(collection: acronymsController)
+    
+    // MARK: User
+    let usersController = UsersController()
+    try router.register(collection: usersController)
 }
